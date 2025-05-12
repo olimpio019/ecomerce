@@ -42,7 +42,8 @@ export async function GET() {
     // Converter preços para número
     const produtosComPrecoNumerico = produtos.map(produto => ({
       ...produto,
-      preco: Number(produto.preco)
+      preco: Number(produto.preco),
+      precoPix: Number(produto.precoPix)
     }));
 
     return NextResponse.json(produtosComPrecoNumerico);
@@ -74,9 +75,12 @@ export async function POST(request: Request) {
         nome: data.nome,
         descricao: data.descricao,
         preco: data.preco,
+        precoPix: data.precoPix || data.preco,
         imagemUrl: data.imagemUrl,
         estoque: data.estoque,
         categoriaId: data.categoriaId,
+        marca: data.marca || "",
+        tamanhos: data.tamanhos || [],
       },
       include: {
         categoria: {
