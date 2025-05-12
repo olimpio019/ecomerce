@@ -114,12 +114,14 @@ export default function ProdutoDetalhePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="relative aspect-square">
+        <div className="relative w-full h-[500px] md:h-[600px]">
           <Image
             src={produto.image}
             alt={produto.name}
             fill
-            className="object-cover rounded-lg"
+            className="object-contain rounded-lg"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            priority
           />
         </div>
 
