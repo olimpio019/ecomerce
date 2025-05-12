@@ -8,9 +8,16 @@ export async function GET(request: Request) {
     const marca = searchParams.get('marca');
     const busca = searchParams.get('busca');
 
+    console.log('Parâmetros recebidos:', { categoria, marca, busca });
+
     const where = {
       ...(categoria && { categoria: { nome: categoria } }),
-      ...(marca && { marca }),
+      ...(marca && marca !== '' && { 
+        marca: { 
+          contains: marca,
+          mode: 'insensitive' 
+        } 
+      }),
       ...(busca && {
         OR: [
           { nome: { contains: busca, mode: 'insensitive' } },
@@ -18,6 +25,8 @@ export async function GET(request: Request) {
         ]
       }),
     };
+
+    console.log('Query where:', JSON.stringify(where, null, 2));
 
     const produtos = await prisma.produto.findMany({
       where,
@@ -28,6 +37,8 @@ export async function GET(request: Request) {
         criadoEm: 'desc'
       }
     });
+
+    console.log('Produtos encontrados:', produtos.length);
 
     // Converter preços para número e adicionar campos necessários para a exibição
     const produtosFormatados = produtos.map(produto => ({

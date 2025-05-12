@@ -35,6 +35,7 @@ export function ProdutosList() {
   useEffect(() => {
     const fetchProdutos = async () => {
       try {
+        setLoading(true);
         const url = new URL("/api/produtos", window.location.origin);
         if (marcaSelecionada) {
           url.searchParams.set("marca", marcaSelecionada);
@@ -42,13 +43,16 @@ export function ProdutosList() {
         if (termoBusca) {
           url.searchParams.set("busca", termoBusca);
         }
+        console.log('URL da requisição:', url.toString());
         const response = await fetch(url);
         if (!response.ok) throw new Error("Erro ao buscar produtos");
         const data = await response.json();
+        console.log('Produtos recebidos:', data.length);
         setProdutos(data);
       } catch (error) {
         console.error("Erro ao carregar produtos:", error);
         toast.error("Erro ao carregar produtos");
+        setError("Erro ao carregar produtos");
       } finally {
         setLoading(false);
       }

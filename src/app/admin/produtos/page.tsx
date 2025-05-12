@@ -100,12 +100,12 @@ export default function AdminProdutos() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-gray-900">Gerenciar Produtos</h1>
+    <div className="p-4 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Gerenciar Produtos</h1>
         <Link
           href="/admin/produtos/novo"
-          className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center space-x-2 hover:bg-red-700 transition"
+          className="w-full sm:w-auto bg-red-600 text-white px-4 py-2 rounded-lg flex items-center justify-center space-x-2 hover:bg-red-700 transition"
         >
           <Plus className="w-5 h-5" />
           <span>Adicionar Produto</span>
@@ -125,23 +125,23 @@ export default function AdminProdutos() {
       </div>
 
       {/* Tabela de Produtos */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded-lg shadow overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Produto
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Categoria
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Preço
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Estoque
               </th>
-              <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th scope="col" className="px-4 sm:px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Ações
               </th>
             </tr>
@@ -149,7 +149,7 @@ export default function AdminProdutos() {
           <tbody className="bg-white divide-y divide-gray-200">
             {filteredProdutos.map((produto) => (
               <tr key={produto.id}>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 sm:px-6 py-4">
                   <div className="flex items-center">
                     <div className="flex-shrink-0 h-10 w-10">
                       <img
@@ -159,42 +159,44 @@ export default function AdminProdutos() {
                       />
                     </div>
                     <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-900 truncate max-w-[200px]">
                         {produto.nome}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-500 truncate max-w-[200px]">
                         {produto.descricao}
                       </div>
                     </div>
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 sm:px-6 py-4">
                   <div className="text-sm text-gray-900">{produto.categoria.nome}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 sm:px-6 py-4">
                   <div className="text-sm text-gray-900">
                     R$ {produto.preco.toFixed(2)}
                   </div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">
+                <td className="px-4 sm:px-6 py-4">
                   <div className="text-sm text-gray-900">{produto.estoque}</div>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Link
-                    href={`/admin/produtos/${produto.id}/editar`}
-                    className="text-red-600 hover:text-red-900 mr-4"
-                  >
-                    <Edit className="w-5 h-5 inline-block" />
-                  </Link>
-                  <button
-                    onClick={() => {
-                      setProdutoToDelete(produto.id);
-                      setShowDeleteModal(true);
-                    }}
-                    className="text-red-600 hover:text-red-900"
-                  >
-                    <Trash2 className="w-5 h-5 inline-block" />
-                  </button>
+                <td className="px-4 sm:px-6 py-4 text-right text-sm font-medium">
+                  <div className="flex justify-end space-x-2">
+                    <Link
+                      href={`/admin/produtos/${produto.id}/editar`}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      <Edit className="w-5 h-5" />
+                    </Link>
+                    <button
+                      onClick={() => {
+                        setProdutoToDelete(produto.id);
+                        setShowDeleteModal(true);
+                      }}
+                      className="text-red-600 hover:text-red-900"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -204,10 +206,10 @@ export default function AdminProdutos() {
 
       {/* Modal de Confirmação de Exclusão */}
       {showDeleteModal && (
-        <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-xl font-bold mb-4">Confirmar Exclusão</h2>
-            <p className="mb-6">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-sm w-full">
+            <h3 className="text-lg font-semibold mb-4">Confirmar Exclusão</h3>
+            <p className="text-gray-600 mb-6">
               Tem certeza que deseja excluir este produto? Esta ação não pode ser desfeita.
             </p>
             <div className="flex justify-end space-x-4">
@@ -216,13 +218,13 @@ export default function AdminProdutos() {
                   setShowDeleteModal(false);
                   setProdutoToDelete(null);
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
               >
                 Cancelar
               </button>
               <button
                 onClick={() => produtoToDelete && handleDelete(produtoToDelete)}
-                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
               >
                 Excluir
               </button>
