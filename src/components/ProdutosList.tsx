@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { useCart } from "../../hooks/useCart";
+import { useCart } from "@/hooks/useCart";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
 import Image from "next/image";
