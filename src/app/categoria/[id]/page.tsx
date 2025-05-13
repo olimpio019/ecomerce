@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { ShoppingCart, ArrowLeft } from 'lucide-react';
 import { useCart } from '../../../hooks/useCart';
 import { toast } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
 
 interface Product {
   id: string;
@@ -30,6 +31,7 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
   const [loading, setLoading] = useState(true);
   const { addItem } = useCart();
   const categoryName = categoryNames[resolvedParams.id] || resolvedParams.id;
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -147,11 +149,11 @@ export default function CategoryPage({ params }: { params: Promise<{ id: string 
                     </div>
                   </div>
                   <button
-                    onClick={() => handleAddToCart(product)}
+                    onClick={() => router.push(`/produtos/${product.id}`)}
                     className="w-full bg-red-600 text-white py-2 rounded-lg flex items-center justify-center space-x-2 hover:bg-red-700 transition-colors"
                   >
                     <ShoppingCart size={20} />
-                    <span>Adicionar ao Carrinho</span>
+                    <span>Ver Detalhes</span>
                   </button>
                 </div>
               </div>

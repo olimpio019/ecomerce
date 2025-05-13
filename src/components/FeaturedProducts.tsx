@@ -6,6 +6,7 @@ import { ShoppingCart } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { toast } from 'react-hot-toast';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 interface Product {
   id: string;
@@ -26,6 +27,7 @@ export function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { addItem } = useCart();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -139,11 +141,11 @@ export function FeaturedProducts() {
               </Link>
               <div className="px-3 md:px-6 pb-3 md:pb-6">
                 <button
-                  onClick={() => handleAddToCart(product)}
+                  onClick={() => router.push(`/produtos/${product.id}`)}
                   className="w-full bg-red-600 text-white py-2 md:py-3 rounded-lg flex items-center justify-center space-x-1 md:space-x-2 hover:bg-red-700 transition-colors text-sm md:text-base"
                 >
                   <ShoppingCart size={16} className="md:w-5 md:h-5" />
-                  <span>Adicionar ao Carrinho</span>
+                  <span>Ver Detalhes</span>
                 </button>
               </div>
             </div>

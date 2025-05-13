@@ -6,6 +6,7 @@ import { toast } from "react-hot-toast";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface Produto {
   id: string;
@@ -31,6 +32,7 @@ export function ProdutosList() {
   const [marcaSelecionada, setMarcaSelecionada] = useState<string>("");
   const searchParams = useSearchParams();
   const termoBusca = searchParams.get("busca") || "";
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProdutos = async () => {
@@ -186,11 +188,11 @@ export function ProdutosList() {
                   </div>
                 </div>
                 <button
-                  onClick={() => handleAddToCart(produto)}
+                  onClick={() => router.push(`/produtos/${produto.id}`)}
                   className="w-full bg-red-600 text-white py-2 rounded-lg flex items-center justify-center space-x-2 hover:bg-red-700 transition-colors"
                 >
                   <ShoppingCart size={20} />
-                  <span>Adicionar ao Carrinho</span>
+                  <span>Ver Detalhes</span>
                 </button>
               </div>
             </div>
