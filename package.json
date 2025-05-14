@@ -1,16 +1,18 @@
 {
-  "name": "nextjs-shadcn",
+  "name": "js-outlet-center",
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -H 0.0.0.0 --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "bunx biome lint --write && bunx tsc --noEmit",
+    "lint": "next lint",
+    "postinstall": "prisma generate",
     "format": "bunx biome format --write",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "tsx prisma/seed.ts"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
