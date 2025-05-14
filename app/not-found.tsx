@@ -1,8 +1,16 @@
 'use client';
 
+import { useEffect } from 'react';
 import Link from 'next/link';
 
 export default function NotFound() {
+  useEffect(() => {
+    // Forçar o status 404
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', '/404');
+    }
+  }, []);
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <h2 className="text-4xl font-bold mb-4">404 - Página não encontrada</h2>
