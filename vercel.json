@@ -3,6 +3,8 @@
   "installCommand": "npm install",
   "framework": "nextjs",
   "env": {
-    "NEXTAUTH_URL": "https://seu-dominio.vercel.app"
+    "NEXTAUTH_URL": "https://ecomerce-seven-tau.vercel.app",
+    "NEXTAUTH_SECRET": "seu-secret-aqui",
+    "DATABASE_URL": "seu-database-url-aqui"
   }
 } 
