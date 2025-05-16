@@ -1,16 +1,16 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
 
-export async function GET() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    return new NextResponse('Não autorizado', { status: 401 });
-  }
-
+export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user) {
+      return new NextResponse('Não autorizado', { status: 401 });
+    }
+
     const configuracoes = await prisma.configuracao.findFirst();
     return NextResponse.json(configuracoes);
   } catch (error) {
@@ -19,33 +19,43 @@ export async function GET() {
   }
 }
 
-export async function PUT(request: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    return new NextResponse('Não autorizado', { status: 401 });
-  }
-
+export async function PUT(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user) {
+      return new NextResponse('Não autorizado', { status: 401 });
+    }
+
     const body = await request.json();
-    const { nomeLoja, emailContato, telefoneContato, endereco, cnpj } = body;
+    const { nomeLoja, descricaoLoja, emailContato, telefoneContato, enderecoLoja, instagramLoja, facebookLoja, whatsappLoja } = body;
+
+    if (!nomeLoja || !descricaoLoja || !emailContato || !telefoneContato || !enderecoLoja) {
+      return new NextResponse('Dados incompletos', { status: 400 });
+    }
 
     const configuracoes = await prisma.configuracao.upsert({
-      where: { id: 1 },
+      where: { id: 'configuracao-padrao' },
       update: {
         nomeLoja,
+        descricaoLoja,
         emailContato,
         telefoneContato,
-        endereco,
-        cnpj
+        enderecoLoja,
+        instagramLoja,
+        facebookLoja,
+        whatsappLoja
       },
       create: {
-        id: 1,
+        id: 'configuracao-padrao',
         nomeLoja,
+        descricaoLoja,
         emailContato,
         telefoneContato,
-        endereco,
-        cnpj
+        enderecoLoja,
+        instagramLoja,
+        facebookLoja,
+        whatsappLoja
       }
     });
 
