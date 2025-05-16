@@ -1,53 +1,48 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    console.log('Notificação PIX recebida:', body);
+    console.log('Callback PIX recebido:', body);
 
-    // Verifica se a notificação é válida
-    if (!body.idTransaction || !body.status) {
-      return NextResponse.json(
-        { error: 'Notificação inválida' },
-        { status: 400 }
-      );
+    // Busca o pagamento pelo externalId
+    const pagamentoExistente = await prisma.pagamento.findFirst({
+      where: {
+        externalId: body.idTransaction
+      }
+    });
+
+    if (!pagamentoExistente) {
+      console.error('Pagamento não encontrado:', body.idTransaction);
+      return new NextResponse('Pagamento não encontrado', { status: 404 });
     }
 
-    // Atualiza o status do pagamento no banco de dados
+    // Atualiza o status do pagamento
     const pagamento = await prisma.pagamento.update({
       where: {
-        externalId: body.idTransaction,
+        id: pagamentoExistente.id
       },
       data: {
-        status: body.status === 'PAID' ? 'PAGO' : 'FALHOU',
-        atualizadaEm: new Date(),
-      },
-      include: {
-        pedido: true,
-      },
+        status: body.status === 'PAID' ? 'PAGO' : 'FALHOU'
+      }
     });
 
     // Se o pagamento foi confirmado, atualiza o status do pedido
-    if (body.status === 'PAID' && pagamento.pedido) {
+    if (body.status === 'PAID') {
       await prisma.pedido.update({
         where: {
-          id: pagamento.pedido.id,
+          id: pagamento.pedidoId
         },
         data: {
-          status: 'PAGO',
-          atualizadoEm: new Date(),
-        },
+          status: 'PAGO'
+        }
       });
     }
 
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Erro ao processar callback PIX:', error);
-    return NextResponse.json(
-      { error: 'Erro ao processar notificação' },
-      { status: 500 }
-    );
+    return new NextResponse('Erro interno do servidor', { status: 500 });
   }
 } 
