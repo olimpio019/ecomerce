@@ -8,6 +8,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProxyImage } from './ProxyImage';
 
+interface Categoria {
+  id: number;
+  nome: string;
+  criadaEm: string;
+  atualizadaEm: string;
+}
+
 interface Product {
   id: string;
   nome: string;
@@ -20,7 +27,7 @@ interface Product {
   avaliacoes: number;
   nota: string;
   tamanhos: string[];
-  categoria: string;
+  categoria: Categoria;
 }
 
 export function FeaturedProducts() {
@@ -139,7 +146,7 @@ export function FeaturedProducts() {
                 
                 <div className="p-3 md:p-4">
                   <div className="flex items-center justify-between mb-1 md:mb-2">
-                    <span className="text-xs md:text-sm text-gray-500">{product.categoria}</span>
+                    <span className="text-xs md:text-sm text-gray-500">{product.categoria.nome}</span>
                     <div className="flex items-center">
                       <span className="text-base md:text-lg font-bold text-red-600">
                         R$ {Number(product.preco).toFixed(2)}
