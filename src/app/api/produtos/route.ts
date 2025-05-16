@@ -1,65 +1,87 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const categoria = searchParams.get('categoria');
+    const query = searchParams.get('q');
+    const categoriaId = searchParams.get('categoriaId');
     const marca = searchParams.get('marca');
-    const busca = searchParams.get('busca');
 
-    const where = {
-      ...(categoria && { categoria: { nome: categoria } }),
-      ...(marca && marca !== '' && { 
-        marca: { 
-          contains: marca,
-          mode: 'insensitive' 
-        } 
-      }),
-      ...(busca && {
-        OR: [
-          { nome: { contains: busca, mode: 'insensitive' } },
-          { descricao: { contains: busca, mode: 'insensitive' } }
-        ]
-      }),
-    };
+    const where: Prisma.ProdutoWhereInput = {};
+
+    if (query) {
+      where.OR = [
+        {
+          nome: {
+            contains: query,
+            mode: Prisma.QueryMode.insensitive
+          }
+        },
+        {
+          descricao: {
+            contains: query,
+            mode: Prisma.QueryMode.insensitive
+          }
+        }
+      ];
+    }
+
+    if (marca) {
+      where.marca = {
+        contains: marca,
+        mode: Prisma.QueryMode.insensitive
+      };
+    }
+
+    if (categoriaId) {
+      where.categoriaId = parseInt(categoriaId);
+    }
 
     const produtos = await prisma.produto.findMany({
       where,
       include: {
         categoria: true
-      },
-      orderBy: {
-        criadoEm: 'desc'
       }
     });
 
-    if (!produtos || produtos.length === 0) {
-      return NextResponse.json([], { status: 200 });
-    }
-
-    const produtosFormatados = produtos.map(produto => ({
-      id: produto.id.toString(),
-      nome: produto.nome,
-      preco: Number(produto.preco),
-      precoPix: Number(produto.precoPix),
-      imagem: produto.imagemUrl,
-      descricao: produto.descricao,
-      marca: produto.marca,
-      vendedor: 'Loja Oficial',
-      estoque: produto.estoque,
-      avaliacoes: Math.floor(Math.random() * 500),
-      nota: (Math.random() * 1 + 4).toFixed(1),
-      tamanhos: produto.tamanhos || [],
-      categoria: produto.categoria.nome,
-    }));
-
-    return NextResponse.json(produtosFormatados);
+    return NextResponse.json(produtos);
   } catch (error) {
     console.error('Erro ao buscar produtos:', error);
-    return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
-    );
+    return new NextResponse('Erro interno do servidor', { status: 500 });
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { nome, descricao, preco, categoriaId, marca, estoque, tamanhos } = body;
+
+    if (!nome || !descricao || !preco || !categoriaId) {
+      return new NextResponse('Dados incompletos', { status: 400 });
+    }
+
+    const produto = await prisma.produto.create({
+      data: {
+        nome,
+        descricao,
+        preco,
+        precoPix: preco,
+        imagemUrl: 'https://via.placeholder.com/500',
+        marca: marca || '',
+        categoriaId,
+        estoque: estoque || 10,
+        tamanhos: tamanhos || []
+      },
+      include: {
+        categoria: true
+      }
+    });
+
+    return NextResponse.json(produto);
+  } catch (error) {
+    console.error('Erro ao criar produto:', error);
+    return new NextResponse('Erro interno do servidor', { status: 500 });
   }
 } 
