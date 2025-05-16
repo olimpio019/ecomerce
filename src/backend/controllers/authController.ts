@@ -1,10 +1,11 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { gerarToken } from '../utils/jwt';
+import { Request, Response } from 'express';
 
 const prisma = new PrismaClient();
 
-export async function registrarUsuario(req, res) {
+export async function registrarUsuario(req: Request, res: Response) {
   const { nome, email, senha, admin } = req.body;
   if (!nome || !email || !senha) {
     return res.status(400).json({ error: 'Nome, email e senha são obrigatórios.' });
@@ -20,7 +21,7 @@ export async function registrarUsuario(req, res) {
   return res.status(201).json({ id: usuario.id, nome: usuario.nome, email: usuario.email, admin: usuario.admin });
 }
 
-export async function loginUsuario(req, res) {
+export async function loginUsuario(req: Request, res: Response) {
   const { email, senha } = req.body;
   if (!email || !senha) {
     return res.status(400).json({ error: 'Email e senha obrigatórios.' });
