@@ -1,50 +1,33 @@
-import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../../auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
-  try {
-    const session = await getServerSession(authOptions);
-    
-    if (!session?.user?.admin) {
-      return NextResponse.json(
-        { error: 'Não autorizado' },
-        { status: 401 }
-      );
-    }
+  const session = await getServerSession(authOptions);
 
+  if (!session?.user) {
+    return new NextResponse('Não autorizado', { status: 401 });
+  }
+
+  try {
     const pedidos = await prisma.pedido.findMany({
       include: {
-        usuario: {
-          select: {
-            nome: true,
-            email: true,
-          },
-        },
         itens: {
           include: {
-            produto: {
-              select: {
-                nome: true,
-                preco: true,
-                imagemUrl: true,
-              },
-            },
-          },
+            produto: true
+          }
         },
+        usuario: true
       },
       orderBy: {
-        criadoEm: 'desc',
-      },
+        criadoEm: 'desc'
+      }
     });
 
     return NextResponse.json(pedidos);
   } catch (error) {
     console.error('Erro ao buscar pedidos:', error);
-    return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
-    );
+    return new NextResponse('Erro interno do servidor', { status: 500 });
   }
 } 
