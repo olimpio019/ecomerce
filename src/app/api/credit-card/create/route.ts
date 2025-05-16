@@ -1,105 +1,53 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const apiKey = process.env.NEXT_PUBLIC_SYNCPAY_API_KEY;
+    const session = await getServerSession(authOptions);
 
-    if (!apiKey) {
-      console.error('API key não configurada');
-      return NextResponse.json(
-        { error: 'API key não configurada' },
-        { status: 500 }
-      );
+    if (!session?.user) {
+      return new NextResponse('Não autorizado', { status: 401 });
     }
 
-    console.log('API Key:', apiKey);
-    console.log('Dados recebidos:', body);
+    const body = await request.json();
+    const { numero, nome, validade, cvv } = body;
 
-    const syncpayBody = {
-      amount: body.amount,
-      customer: {
-        name: body.customer.name,
-        email: body.customer.email,
-        cpf: body.customer.cpf,
-        phone: body.customer.phone || '9999999999',
-        address: {
-          street: body.customer.address?.street || 'Rua Genérica',
-          streetNumber: body.customer.address?.streetNumber || '123',
-          complement: body.customer.address?.complement || 'Complemento',
-          zipCode: body.customer.address?.zipCode || '00000000',
-          neighborhood: body.customer.address?.neighborhood || 'Bairro',
-          city: body.customer.address?.city || 'Cidade',
-          state: body.customer.address?.state || 'SP',
-          country: body.customer.address?.country || 'br',
-        },
-      },
-      card: {
-        number: body.card.number,
-        holderName: body.card.name,
-        expiryMonth: body.card.expiry.split('/')[0],
-        expiryYear: body.card.expiry.split('/')[1],
-        cvv: body.card.cvv,
-      },
-      items: body.items || [],
-      postbackUrl: `${process.env.NEXTAUTH_URL}/api/credit-card/webhook`,
-      traceable: true,
+    if (!numero || !nome || !validade || !cvv) {
+      return new NextResponse('Dados incompletos', { status: 400 });
+    }
+
+    // Aqui você implementaria a integração com a API de pagamento
+    // Por enquanto, vamos simular uma resposta de sucesso
+    const response = {
+      success: true,
+      cardId: 'card_' + Math.random().toString(36).substr(2, 9),
+      last4: numero.slice(-4),
+      brand: 'visa'
     };
 
-    console.log('Enviando requisição para SyncPay:', {
-      url: 'https://api.syncpay.pro/v1/gateway/api',
-      body: syncpayBody,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
+    // Salva o cartão no banco de dados
+    const cartao = await prisma.cartao.create({
+      data: {
+        usuarioId: session.user.id,
+        numero: numero.slice(-4),
+        nome,
+        validade,
+        brand: response.brand,
+        cardId: response.cardId
+      }
     });
 
-    const response = await fetch('https://api.syncpay.pro/v1/gateway/api', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify(syncpayBody),
-    });
-
-    const responseText = await response.text();
-    console.log('Resposta bruta do SyncPay:', responseText);
-
-    let responseData;
-    try {
-      responseData = JSON.parse(responseText);
-    } catch (e) {
-      console.error('Erro ao parsear resposta:', e);
-      return NextResponse.json(
-        { error: 'Resposta inválida da API', details: e.message },
-        { status: 500 }
-      );
-    }
-
-    console.log('Resposta parseada do SyncPay:', responseData);
-
-    if (!response.ok) {
-      console.error('Erro na API do SyncPay:', {
-        status: response.status,
-        statusText: response.statusText,
-        data: responseData,
-      });
-      return NextResponse.json(
-        { 
-          error: responseData.message || 'Erro ao processar pagamento com cartão',
-          details: responseData,
-        },
-        { status: response.status }
-      );
-    }
-
-    return NextResponse.json(responseData);
+    return NextResponse.json(cartao);
   } catch (error) {
-    console.error('Erro ao processar requisição:', error);
+    console.error('Erro ao processar cartão:', error);
+    
+    // Trata o erro de forma segura
+    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    
     return NextResponse.json(
-      { error: 'Erro interno do servidor', details: error.message },
+      { error: 'Erro ao processar cartão', details: errorMessage },
       { status: 500 }
     );
   }
