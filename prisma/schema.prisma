@@ -121,3 +121,17 @@ model Endereco {
   atualizadoEm DateTime  @updatedAt
   pedidos      Pedido[]
 }
+
+model Configuracao {
+  id                String   @id @default(cuid())
+  nomeLoja          String
+  descricaoLoja     String
+  emailContato      String
+  telefoneContato   String
+  enderecoLoja      String
+  instagramLoja     String?
+  facebookLoja      String?
+  whatsappLoja      String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
