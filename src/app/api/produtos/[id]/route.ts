@@ -1,59 +1,68 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, context: any) {
   try {
-    const id = parseInt(params.id, 10);
-    
-    if (isNaN(id)) {
-      return NextResponse.json(
-        { error: 'ID do produto inválido' },
-        { status: 400 }
-      );
-    }
-
     const produto = await prisma.produto.findUnique({
-      where: {
-        id: id,
-      },
+      where: { id: context.params.id },
       include: {
-        categoria: {
-          select: {
-            nome: true,
-          },
-        },
-      },
+        categoria: true,
+        imagens: true
+      }
     });
 
     if (!produto) {
-      return NextResponse.json(
-        { error: 'Produto não encontrado' },
-        { status: 404 }
-      );
+      return new NextResponse('Produto não encontrado', { status: 404 });
     }
 
-    // Converter preços para número e adicionar campos necessários para a exibição
-    const produtoFormatado = {
-      id: produto.id.toString(),
-      name: produto.nome,
-      price: Number(produto.preco),
-      precoPix: Number(produto.preco) * 0.9, // 10% de desconto no PIX
-      image: produto.imagemUrl,
-      description: produto.descricao,
-      seller: 'Loja Oficial',
-      sizes: ['P', 'M', 'G', 'GG'], // Mock de tamanhos
-      categoria: produto.categoria,
-    };
-
-    return NextResponse.json(produtoFormatado);
+    return NextResponse.json(produto);
   } catch (error) {
     console.error('Erro ao buscar produto:', error);
-    return NextResponse.json(
-      { error: 'Erro interno do servidor' },
-      { status: 500 }
-    );
+    return new NextResponse('Erro interno do servidor', { status: 500 });
+  }
+}
+
+export async function PUT(request: NextRequest, context: any) {
+  try {
+    const body = await request.json();
+    const { nome, descricao, preco, categoriaId, destaque, ativo } = body;
+
+    if (!nome || !descricao || !preco || !categoriaId) {
+      return new NextResponse('Dados incompletos', { status: 400 });
+    }
+
+    const produto = await prisma.produto.update({
+      where: { id: context.params.id },
+      data: {
+        nome,
+        descricao,
+        preco,
+        categoriaId,
+        destaque: destaque ?? false,
+        ativo: ativo ?? true
+      },
+      include: {
+        categoria: true,
+        imagens: true
+      }
+    });
+
+    return NextResponse.json(produto);
+  } catch (error) {
+    console.error('Erro ao atualizar produto:', error);
+    return new NextResponse('Erro interno do servidor', { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest, context: any) {
+  try {
+    await prisma.produto.delete({
+      where: { id: context.params.id }
+    });
+
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    console.error('Erro ao excluir produto:', error);
+    return new NextResponse('Erro interno do servidor', { status: 500 });
   }
 } 
