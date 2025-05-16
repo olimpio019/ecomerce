@@ -4,10 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, context: any) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -16,7 +13,7 @@ export async function GET(
 
   try {
     const usuario = await prisma.usuario.findUnique({
-      where: { id: params.id },
+      where: { id: context.params.id },
       select: {
         id: true,
         nome: true,
@@ -48,10 +45,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, context: any) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -63,7 +57,7 @@ export async function PUT(
     const { nome, email, senha, admin } = body;
 
     const usuario = await prisma.usuario.findUnique({
-      where: { id: params.id }
+      where: { id: context.params.id }
     });
 
     if (!usuario) {
@@ -81,7 +75,7 @@ export async function PUT(
     }
 
     const usuarioAtualizado = await prisma.usuario.update({
-      where: { id: params.id },
+      where: { id: context.params.id },
       data: dadosAtualizacao
     });
 
@@ -92,10 +86,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, context: any) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user) {
@@ -104,7 +95,7 @@ export async function DELETE(
 
   try {
     const usuario = await prisma.usuario.findUnique({
-      where: { id: params.id }
+      where: { id: context.params.id }
     });
 
     if (!usuario) {
@@ -112,7 +103,7 @@ export async function DELETE(
     }
 
     await prisma.usuario.delete({
-      where: { id: params.id }
+      where: { id: context.params.id }
     });
 
     return new NextResponse(null, { status: 204 });
