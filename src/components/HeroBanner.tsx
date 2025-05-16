@@ -1,12 +1,12 @@
 'use client';
 
-import Image from 'next/image';
+import { ProxyImage } from './ProxyImage';
 
 export function HeroBanner() {
   return (
     <div className="relative h-[300px] md:h-[500px] w-full">
       <div className="absolute inset-0">
-        <Image
+        <ProxyImage
           src="/banner.jpg"
           alt="Banner principal"
           fill

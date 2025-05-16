@@ -1,41 +1,85 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    unoptimized: true,
-    domains: [
-      "source.unsplash.com",
-      "images.unsplash.com",
-      "ext.same-assets.com",
-      "ugc.same-assets.com",
-    ],
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "source.unsplash.com",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
       },
       {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'plus.unsplash.com',
       },
       {
-        protocol: "https",
-        hostname: "ext.same-assets.com",
-        pathname: "/**",
+        protocol: 'http',
+        hostname: 'localhost',
       },
       {
-        protocol: "https",
-        hostname: "ugc.same-assets.com",
-        pathname: "/**",
+        protocol: 'https',
+        hostname: 'cdn.shopify.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'allokershop.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'tnsdomr.com.br',
+      },
+      {
+        protocol: 'https',
+        hostname: 'http2.mlstatic.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'tse3.mm.bing.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'sp.yimg.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'acdn-us.mitiendanube.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.joomcdn.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'imgnike-a.akamaihd.net',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.dooca.store',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdna.lystit.com',
+      }
     ],
   },
-  typescript: {
-    ignoreBuildErrors: true,
+  experimental: {
+    serverActions: {
+      allowedOrigins: ['localhost:3000'],
+    },
   },
-  eslint: {
-    ignoreDuringBuilds: true,
+  webpack: (config) => {
+    config.resolve.fallback = { fs: false };
+    return config;
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/auth/:path*',
+        destination: '/api/auth/:path*',
+      },
+      {
+        source: '/api/produtos/:path*',
+        destination: '/api/produtos/:path*',
+      }
+    ];
   },
 };
 

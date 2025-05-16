@@ -1,9 +1,9 @@
-import NextAuth from "next-auth";
+import NextAuth, { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import { compare } from "bcryptjs";
 
-export const authOptions = {
+export const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -16,44 +16,39 @@ export const authOptions = {
           throw new Error('Email e senha são obrigatórios');
         }
 
-        const user = await prisma.usuario.findUnique({
-          where: {
-            email: credentials.email
+        try {
+          const user = await prisma.usuario.findUnique({
+            where: {
+              email: credentials.email
+            }
+          });
+
+          if (!user) {
+            throw new Error('Usuário não encontrado');
           }
-        });
 
-        if (!user) {
-          throw new Error('Usuário não encontrado');
+          const isPasswordValid = await compare(credentials.password, user.senhaHash);
+
+          if (!isPasswordValid) {
+            throw new Error('Senha incorreta');
+          }
+
+          return {
+            id: user.id.toString(),
+            email: user.email,
+            name: user.nome,
+            role: user.role || (user.admin ? 'ADMIN' : 'USER'),
+            admin: user.admin
+          };
+        } catch (error) {
+          console.error('Erro na autenticação:', error);
+          throw error;
         }
-
-        const isPasswordValid = await compare(credentials.password, user.senhaHash);
-
-        if (!isPasswordValid) {
-          throw new Error('Senha incorreta');
-        }
-
-        console.log('Usuário encontrado:', {
-          id: user.id,
-          email: user.email,
-          role: user.role,
-          admin: user.admin
-        });
-
-        return {
-          id: user.id.toString(),
-          email: user.email,
-          name: user.nome,
-          role: user.role || (user.admin ? 'ADMIN' : 'USER'),
-          admin: user.admin
-        };
       }
     })
   ],
   callbacks: {
     async jwt({ token, user }) {
-      console.log('JWT Callback - Token:', token);
-      console.log('JWT Callback - User:', user);
-      
       if (user) {
         token.role = user.role;
         token.admin = user.admin;
@@ -61,9 +56,6 @@ export const authOptions = {
       return token;
     },
     async session({ session, token }) {
-      console.log('Session Callback - Session:', session);
-      console.log('Session Callback - Token:', token);
-      
       if (session.user) {
         session.user.role = token.role;
         session.user.admin = token.admin;
@@ -72,12 +64,16 @@ export const authOptions = {
     }
   },
   pages: {
-    signIn: '/login'
+    signIn: '/login',
+    error: '/auth/error'
   },
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 dias
   },
-  secret: process.env.NEXTAUTH_SECRET
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development',
+  trustHost: true
 };
 
 const handler = NextAuth(authOptions);

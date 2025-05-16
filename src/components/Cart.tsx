@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { ShoppingCart, X, Plus, Minus, Trash2 } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
-import Image from 'next/image';
+import { ProxyImage } from './ProxyImage';
 import Link from 'next/link';
 import { toast } from 'react-hot-toast';
 
@@ -112,7 +112,7 @@ export function Cart() {
                     className="flex items-center space-x-4 p-2 hover:bg-gray-50 rounded-lg transition-colors"
                   >
                     <div className="relative w-20 h-20 flex-shrink-0">
-                      <Image
+                      <ProxyImage
                         src={item.image}
                         alt={item.name}
                         fill

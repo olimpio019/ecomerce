@@ -8,8 +8,6 @@ export async function GET(request: Request) {
     const marca = searchParams.get('marca');
     const busca = searchParams.get('busca');
 
-    console.log('Parâmetros recebidos:', { categoria, marca, busca });
-
     const where = {
       ...(categoria && { categoria: { nome: categoria } }),
       ...(marca && marca !== '' && { 
@@ -26,8 +24,6 @@ export async function GET(request: Request) {
       }),
     };
 
-    console.log('Query where:', JSON.stringify(where, null, 2));
-
     const produtos = await prisma.produto.findMany({
       where,
       include: {
@@ -38,9 +34,10 @@ export async function GET(request: Request) {
       }
     });
 
-    console.log('Produtos encontrados:', produtos.length);
+    if (!produtos || produtos.length === 0) {
+      return NextResponse.json([], { status: 200 });
+    }
 
-    // Converter preços para número e adicionar campos necessários para a exibição
     const produtosFormatados = produtos.map(produto => ({
       id: produto.id.toString(),
       nome: produto.nome,
@@ -51,9 +48,9 @@ export async function GET(request: Request) {
       marca: produto.marca,
       vendedor: 'Loja Oficial',
       estoque: produto.estoque,
-      avaliacoes: Math.floor(Math.random() * 500), // Mock de avaliações
-      nota: (Math.random() * 1 + 4).toFixed(1), // Mock de nota entre 4 e 5
-      tamanhos: produto.tamanhos,
+      avaliacoes: Math.floor(Math.random() * 500),
+      nota: (Math.random() * 1 + 4).toFixed(1),
+      tamanhos: produto.tamanhos || [],
       categoria: produto.categoria.nome,
     }));
 

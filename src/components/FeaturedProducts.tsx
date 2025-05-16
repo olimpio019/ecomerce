@@ -1,12 +1,12 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 import { ShoppingCart } from 'lucide-react';
 import { useCart } from '../hooks/useCart';
 import { toast } from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { ProxyImage } from './ProxyImage';
 
 interface Product {
   id: string;
@@ -26,18 +26,31 @@ interface Product {
 export function FeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const { addItem } = useCart();
   const router = useRouter();
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true);
+        setError(null);
         const response = await fetch('/api/produtos');
-        if (!response.ok) throw new Error('Erro ao buscar produtos');
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Erro ao buscar produtos');
+        }
+        
         const data = await response.json();
-        setProducts(data.slice(0, 4)); // Pega os 4 primeiros produtos
+        if (!Array.isArray(data)) {
+          throw new Error('Formato de dados inválido');
+        }
+        
+        setProducts(data.slice(0, 4));
       } catch (error) {
         console.error('Erro ao carregar produtos:', error);
+        setError(error instanceof Error ? error.message : 'Erro ao carregar produtos');
         toast.error('Erro ao carregar produtos');
       } finally {
         setLoading(false);
@@ -101,7 +114,7 @@ export function FeaturedProducts() {
             >
               <Link href={`/produto/${product.id}`}>
                 <div className="relative h-48 md:h-72">
-                  <Image
+                  <ProxyImage
                     src={product.imagem}
                     alt={product.nome}
                     fill

@@ -4,9 +4,9 @@ import { useSearchParams } from "next/navigation";
 import { useCart } from "@/hooks/useCart";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { ProxyImage } from './ProxyImage';
 
 interface Produto {
   id: string;
@@ -38,6 +38,7 @@ export function ProdutosList() {
     const fetchProdutos = async () => {
       try {
         setLoading(true);
+        setError(null);
         const url = new URL("/api/produtos", window.location.origin);
         if (marcaSelecionada) {
           url.searchParams.set("marca", marcaSelecionada);
@@ -45,16 +46,24 @@ export function ProdutosList() {
         if (termoBusca) {
           url.searchParams.set("busca", termoBusca);
         }
-        console.log('URL da requisição:', url.toString());
-        const response = await fetch(url);
-        if (!response.ok) throw new Error("Erro ao buscar produtos");
+        
+        const response = await fetch(url.toString(), {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error(`Erro ao buscar produtos: ${response.statusText}`);
+        }
+
         const data = await response.json();
-        console.log('Produtos recebidos:', data.length);
         setProdutos(data);
       } catch (error) {
         console.error("Erro ao carregar produtos:", error);
+        setError(error instanceof Error ? error.message : "Erro ao carregar produtos");
         toast.error("Erro ao carregar produtos");
-        setError("Erro ao carregar produtos");
       } finally {
         setLoading(false);
       }
@@ -162,7 +171,7 @@ export function ProdutosList() {
             >
               <Link href={`/produtos/${produto.id}`}>
                 <div className="relative h-48">
-                  <Image
+                  <ProxyImage
                     src={produto.imagem}
                     alt={produto.nome}
                     fill

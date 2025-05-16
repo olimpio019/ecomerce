@@ -12,6 +12,14 @@ interface Usuario {
   criadoEm: string;
 }
 
+interface SessionUser {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  admin?: boolean;
+  role?: string;
+}
+
 export default function AdminUsuarios() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -26,10 +34,10 @@ export default function AdminUsuarios() {
     if (status === 'unauthenticated') {
       console.log('Usuário não autenticado, redirecionando para login...');
       router.push('/login');
-    } else if (status === 'authenticated' && !session?.user?.admin) {
+    } else if (status === 'authenticated' && !(session?.user as SessionUser)?.admin) {
       console.log('Usuário não é admin, redirecionando para home...');
       router.push('/');
-    } else if (status === 'authenticated' && session?.user?.admin) {
+    } else if (status === 'authenticated' && (session?.user as SessionUser)?.admin) {
       console.log('Usuário autenticado e é admin, buscando usuários...');
       fetchUsuarios();
     }
@@ -93,7 +101,7 @@ export default function AdminUsuarios() {
     );
   }
 
-  if (!session?.user?.admin) {
+  if (!(session?.user as SessionUser)?.admin) {
     console.log('Usuário não é admin, não renderizando conteúdo...');
     return null;
   }

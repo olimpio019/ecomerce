@@ -12,6 +12,14 @@ import {
   LogOut
 } from 'lucide-react';
 
+interface User {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+  admin?: boolean;
+  role?: string;
+}
+
 export default function AdminLayout({
   children,
 }: {
@@ -24,7 +32,7 @@ export default function AdminLayout({
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/login');
-    } else if (status === 'authenticated' && !session?.user?.admin) {
+    } else if (status === 'authenticated' && !(session?.user as User)?.admin) {
       router.push('/');
     }
   }, [status, session, router]);
@@ -45,7 +53,7 @@ export default function AdminLayout({
     );
   }
 
-  if (!session?.user?.admin) {
+  if (!(session?.user as User)?.admin) {
     return null;
   }
 
