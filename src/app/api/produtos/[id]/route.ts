@@ -24,7 +24,7 @@ export async function GET(request: NextRequest, context: any) {
 export async function PUT(request: NextRequest, context: any) {
   try {
     const body = await request.json();
-    const { nome, descricao, preco, categoriaId, destaque, ativo } = body;
+    const { nome, descricao, preco, categoriaId, estoque, tamanhos } = body;
 
     if (!nome || !descricao || !preco || !categoriaId) {
       return new NextResponse('Dados incompletos', { status: 400 });
@@ -37,12 +37,11 @@ export async function PUT(request: NextRequest, context: any) {
         descricao,
         preco,
         categoriaId,
-        destaque: destaque ?? false,
-        ativo: ativo ?? true
+        estoque: estoque ?? 10,
+        tamanhos: tamanhos ?? []
       },
       include: {
-        categoria: true,
-        imagens: true
+        categoria: true
       }
     });
 
