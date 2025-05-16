@@ -1,14 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+interface RouteContext {
+  params: {
+    id: string;
+  };
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: RouteContext
 ) {
   try {
     const pagamento = await prisma.pagamento.findUnique({
       where: {
-        id: parseInt(params.id)
+        id: parseInt(context.params.id)
       },
       select: {
         id: true,
