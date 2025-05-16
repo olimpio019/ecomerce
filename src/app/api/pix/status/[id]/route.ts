@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+type Params = {
+  id: string;
+};
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Params }
 ): Promise<NextResponse> {
   try {
     const pagamento = await prisma.pagamento.findUnique({
