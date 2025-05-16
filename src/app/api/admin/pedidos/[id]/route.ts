@@ -3,15 +3,9 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../auth/[...nextauth]/route';
 import { prisma } from '@/lib/prisma';
 
-interface RouteContext {
-  params: {
-    id: string;
-  };
-}
-
 export async function PATCH(
   request: Request,
-  context: RouteContext
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -26,7 +20,7 @@ export async function PATCH(
     const data = await request.json();
     
     const pedido = await prisma.pedido.update({
-      where: { id: parseInt(context.params.id) },
+      where: { id: parseInt(params.id) },
       data: {
         status: data.status,
       },
