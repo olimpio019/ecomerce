@@ -1,9 +1,21 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export async function GET() {
+// Estender o tipo Session do NextAuth para incluir a propriedade admin
+declare module 'next-auth' {
+  interface Session {
+    user: {
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      admin?: boolean;
+    };
+  }
+}
+
+export async function GET(request: NextRequest) {
   try {
     console.log('Verificando sessão...');
     const session = await getServerSession(authOptions);
@@ -42,6 +54,10 @@ export async function GET() {
     }
 
     console.log('Admin status do banco:', user.admin);
+
+    // Atualize a sessão com o status de admin
+    session.user.admin = user.admin;
+
     return NextResponse.json({ admin: user.admin });
   } catch (error) {
     console.error('Erro ao verificar status de admin:', error);
