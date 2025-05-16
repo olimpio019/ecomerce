@@ -11,9 +11,9 @@ import { ProxyImage } from './ProxyImage';
 interface Product {
   id: string;
   nome: string;
-  preco: number;
-  imagem: string;
-  precoPix: number;
+  preco: number | string;
+  imagemUrl: string;
+  precoPix: number | string;
   descricao: string;
   vendedor: string;
   estoque: number;
@@ -64,9 +64,9 @@ export function FeaturedProducts() {
     addItem({
       id: product.id,
       name: product.nome,
-      price: product.preco,
-      precoPix: product.precoPix,
-      image: product.imagem,
+      price: Number(product.preco),
+      precoPix: Number(product.precoPix),
+      image: product.imagemUrl,
     });
     toast.success('Produto adicionado ao carrinho!');
   };
@@ -115,7 +115,7 @@ export function FeaturedProducts() {
               <Link href={`/produto/${product.id}`}>
                 <div className="relative h-48 md:h-72">
                   <ProxyImage
-                    src={product.imagem}
+                    src={product.imagemUrl}
                     alt={product.nome}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -142,10 +142,10 @@ export function FeaturedProducts() {
                     <span className="text-xs md:text-sm text-gray-500">{product.categoria}</span>
                     <div className="flex items-center">
                       <span className="text-base md:text-lg font-bold text-red-600">
-                        R$ {product.preco.toFixed(2)}
+                        R$ {Number(product.preco).toFixed(2)}
                       </span>
                       <span className="ml-1 md:ml-2 text-xs md:text-sm text-gray-500 line-through">
-                        R$ {(product.preco / 0.9).toFixed(2)}
+                        R$ {(Number(product.preco) / 0.9).toFixed(2)}
                       </span>
                     </div>
                   </div>
