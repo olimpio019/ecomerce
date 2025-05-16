@@ -1,17 +1,17 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
 
 // GET /api/admin/produtos - Listar todos os produtos
-export async function GET() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    return new NextResponse('Não autorizado', { status: 401 });
-  }
-
+export async function GET(request: NextRequest) {
   try {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user) {
+      return new NextResponse('Não autorizado', { status: 401 });
+    }
+
     const produtos = await prisma.produto.findMany({
       include: {
         categoria: true
@@ -29,19 +29,19 @@ export async function GET() {
 }
 
 // POST /api/admin/produtos - Criar novo produto
-export async function POST(request: Request) {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    return new NextResponse('Não autorizado', { status: 401 });
-  }
-
+export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { nome, descricao, preco, imagemUrl, estoque, categoriaId } = body;
+    const session = await getServerSession(authOptions);
 
-    if (!nome || !descricao || !preco || !imagemUrl || !estoque || !categoriaId) {
-      return new NextResponse('Todos os campos são obrigatórios', { status: 400 });
+    if (!session?.user) {
+      return new NextResponse('Não autorizado', { status: 401 });
+    }
+
+    const body = await request.json();
+    const { nome, descricao, preco, precoPix, imagemUrl, categoriaId, estoque, marca, tamanhos } = body;
+
+    if (!nome || !descricao || !preco || !precoPix || !imagemUrl || !categoriaId) {
+      return new NextResponse('Dados incompletos', { status: 400 });
     }
 
     const produto = await prisma.produto.create({
@@ -49,9 +49,12 @@ export async function POST(request: Request) {
         nome,
         descricao,
         preco: parseFloat(preco),
+        precoPix: parseFloat(precoPix),
         imagemUrl,
-        estoque: parseInt(estoque),
-        categoriaId: parseInt(categoriaId)
+        categoriaId: parseInt(categoriaId),
+        estoque: parseInt(estoque) || 10,
+        marca: marca || '',
+        tamanhos: tamanhos || []
       }
     });
 
