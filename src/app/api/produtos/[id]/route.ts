@@ -1,19 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
-export async function GET(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function GET(request: NextRequest, context: any) {
   try {
     const produto = await prisma.produto.findUnique({
-      where: { id: params.id },
+      where: { id: context.params.id },
       include: {
         categoria: true,
         imagens: true
@@ -31,10 +22,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function PUT(request: NextRequest, context: any) {
   try {
     const body = await request.json();
     const { nome, descricao, preco, categoriaId, destaque, ativo } = body;
@@ -44,7 +32,7 @@ export async function PUT(
     }
 
     const produto = await prisma.produto.update({
-      where: { id: params.id },
+      where: { id: context.params.id },
       data: {
         nome,
         descricao,
@@ -66,13 +54,10 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: RouteContext
-) {
+export async function DELETE(request: NextRequest, context: any) {
   try {
     await prisma.produto.delete({
-      where: { id: params.id }
+      where: { id: context.params.id }
     });
 
     return new NextResponse(null, { status: 204 });
