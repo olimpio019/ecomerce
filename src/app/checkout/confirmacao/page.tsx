@@ -25,9 +25,12 @@ export default function ConfirmacaoPage() {
       try {
         const response = await paymentService.createPixPayment({
           amount: pedido.amount,
-          payerName: pedido.nome,
-          payerDocument: pedido.cpf.replace(/\D/g, ''),
-          payerEmail: pedido.email,
+          customer: {
+            name: pedido.nome,
+            email: pedido.email,
+            cpf: pedido.cpf.replace(/\D/g, '')
+          },
+          postbackUrl: `${window.location.origin}/api/pix/webhook`
         });
         setPix(response);
         setLoading(false);
