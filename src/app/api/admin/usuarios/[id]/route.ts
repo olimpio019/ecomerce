@@ -4,15 +4,9 @@ import { prisma } from '@/lib/prisma';
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 
-type RouteContext = {
-  params: {
-    id: string;
-  };
-};
-
 export async function GET(
   request: NextRequest,
-  context: RouteContext
+  { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
 
@@ -22,7 +16,7 @@ export async function GET(
 
   try {
     const usuario = await prisma.usuario.findUnique({
-      where: { id: context.params.id },
+      where: { id: params.id },
       select: {
         id: true,
         nome: true,
@@ -56,7 +50,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  context: RouteContext
+  { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
 
@@ -69,7 +63,7 @@ export async function PUT(
     const { nome, email, senha, admin } = body;
 
     const usuario = await prisma.usuario.findUnique({
-      where: { id: context.params.id }
+      where: { id: params.id }
     });
 
     if (!usuario) {
@@ -87,7 +81,7 @@ export async function PUT(
     }
 
     const usuarioAtualizado = await prisma.usuario.update({
-      where: { id: context.params.id },
+      where: { id: params.id },
       data: dadosAtualizacao
     });
 
@@ -100,7 +94,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  context: RouteContext
+  { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
 
@@ -110,7 +104,7 @@ export async function DELETE(
 
   try {
     const usuario = await prisma.usuario.findUnique({
-      where: { id: context.params.id }
+      where: { id: params.id }
     });
 
     if (!usuario) {
@@ -118,7 +112,7 @@ export async function DELETE(
     }
 
     await prisma.usuario.delete({
-      where: { id: context.params.id }
+      where: { id: params.id }
     });
 
     return new NextResponse(null, { status: 204 });
