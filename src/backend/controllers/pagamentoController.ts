@@ -7,7 +7,10 @@ const prisma = new PrismaClient();
 // Iniciar pagamento (simulação SyncPay)
 export async function criarPagamento(req: AuthRequest, res: Response) {
   const { pedidoId, metodo } = req.body;
-  const pedido = await prisma.pedido.findUnique({ where: { id: Number(pedidoId) } });
+  const pedido = await prisma.pedido.findUnique({ 
+    where: { id: Number(pedidoId) },
+    include: { pagamento: true }
+  });
   if (!pedido) return res.status(404).json({ error: 'Pedido não encontrado.' });
   if (pedido.pagamento) return res.status(400).json({ error: 'Pagamento já existe para este pedido.' });
   if (pedido.status !== 'PENDENTE') return res.status(400).json({ error: 'Pedido não pode ser pago novamente.' });
