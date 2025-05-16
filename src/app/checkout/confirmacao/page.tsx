@@ -55,7 +55,7 @@ export default function ConfirmacaoPage() {
     const interval = setInterval(async () => {
       try {
         const res = await paymentService.getPixPaymentStatus(transactionId);
-        if (res.status === 'CONFIRMED' || res.status === 'PAID') {
+        if (res.status === 'COMPLETED') {
           setStatus('confirmado');
           clearInterval(interval);
         }
