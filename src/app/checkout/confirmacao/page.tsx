@@ -32,10 +32,15 @@ export default function ConfirmacaoPage() {
           },
           postbackUrl: `${window.location.origin}/api/pix/webhook`
         });
-        setPix(response);
+        setPix({
+          qrCode: response.qrCodeBase64,
+          qrCodeText: response.qrCodeText,
+          transactionId: response.id,
+          amount: response.amount
+        });
         setLoading(false);
         // Iniciar polling
-        pollStatus(response.transactionId);
+        pollStatus(response.id);
       } catch (e) {
         setStatus('erro');
         setLoading(false);
