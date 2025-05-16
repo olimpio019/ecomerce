@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: NextRequest, context: any) {
+type RouteContext = {
+  params: {
+    id: string;
+  };
+};
+
+export async function GET(
+  request: NextRequest,
+  { params }: RouteContext
+) {
   try {
     const produto = await prisma.produto.findUnique({
-      where: { id: context.params.id },
+      where: { id: params.id },
       include: {
         categoria: true,
         imagens: true
@@ -22,7 +31,10 @@ export async function GET(request: NextRequest, context: any) {
   }
 }
 
-export async function PUT(request: NextRequest, context: any) {
+export async function PUT(
+  request: NextRequest,
+  { params }: RouteContext
+) {
   try {
     const body = await request.json();
     const { nome, descricao, preco, categoriaId, destaque, ativo } = body;
@@ -32,7 +44,7 @@ export async function PUT(request: NextRequest, context: any) {
     }
 
     const produto = await prisma.produto.update({
-      where: { id: context.params.id },
+      where: { id: params.id },
       data: {
         nome,
         descricao,
@@ -54,10 +66,13 @@ export async function PUT(request: NextRequest, context: any) {
   }
 }
 
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: RouteContext
+) {
   try {
     await prisma.produto.delete({
-      where: { id: context.params.id }
+      where: { id: params.id }
     });
 
     return new NextResponse(null, { status: 204 });
