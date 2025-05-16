@@ -1,11 +1,11 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
@@ -49,7 +49,7 @@ export async function GET(
 }
 
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
@@ -93,7 +93,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const session = await getServerSession(authOptions);
