@@ -6,8 +6,7 @@ export async function GET(request: NextRequest, context: any) {
     const produto = await prisma.produto.findUnique({
       where: { id: context.params.id },
       include: {
-        categoria: true,
-        imagens: true
+        categoria: true
       }
     });
 
